@@ -1,15 +1,16 @@
 <?php
-// Conexión Unificada InfinityFree - Chango v4
-$host = "sql212.infinityfree.com"; 
-$user = "if0_41237608"; 
-// ATENCIÓN: Esta es la clave con la que entrás al panel de InfinityFree
-$pass = "ze6RU0UUeKpu"; 
-$db   = "if0_41237608_casino"; 
+// CONEXIÓN INTERNA (DE ALTA VELOCIDAD) - CHANGO v4
+$host = "mysql.railway.internal"; // ESTE ES EL HOST INTERNO
+$user = "root"; 
+$pass = "rJwwdlNlDAZRnKiYJUyYUxsJMZOIlySV"; // TU CLAVE LARGA
+$db   = "railway"; 
+$port = 3306; // PUERTO INTERNO ESTÁNDAR
 
-$conn = new mysqli($host, $user, $pass, $db);
+$conn = new mysqli($host, $user, $pass, $db, $port);
 
 if ($conn->connect_error) {
-    die("Error de conexión: " . $conn->connect_error);
+    die("Error de conexión satelital: " . $conn->connect_error);
 }
+
 $conn->set_charset("utf8mb4");
 ?>
