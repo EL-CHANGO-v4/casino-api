@@ -1,26 +1,26 @@
 <?php
-// 1. CAPTURAMOS LAS VARIABLES DE RAILWAY
-$host = getenv('MYSQLHOST');
-$user = getenv('MYSQLUSER');
-$pass = getenv('MYSQLPASSWORD');
-$db   = getenv('MYSQLDATABASE');
-$port = getenv('MYSQLPORT') ?: "3306";
+// 1. CAPTURAMOS LAS VARIABLES DE RAILWAY (CON RESPALDO DE $_ENV)
+$host = getenv('MYSQLHOST') ?: ($_ENV['MYSQLHOST'] ?? null);
+$user = getenv('MYSQLUSER') ?: ($_ENV['MYSQLUSER'] ?? null);
+$pass = getenv('MYSQLPASSWORD') ?: ($_ENV['MYSQLPASSWORD'] ?? null);
+$db   = getenv('MYSQLDATABASE') ?: ($_ENV['MYSQLDATABASE'] ?? null);
+$port = getenv('MYSQLPORT') ?: ($_ENV['MYSQLPORT'] ?? "3306");
 
-// Si no hay host, es que las variables no están conectadas en el panel de Railway
+// Si no hay host, detenemos con un mensaje claro
 if (!$host) { 
-    die("Error: No se detectaron las variables de entorno. Revisa la pestaña 'Variables' en Railway."); 
+    die("Error crítico: El servidor PHP no recibe las variables de Railway. Verifica la pestaña 'Variables'."); 
 }
 
-// 2. CONEXIÓN A LA BASE DE DATOS
+// 2. ESTABLECER CONEXIÓN
 $conn = new mysqli($host, $user, $pass, $db, $port);
 
 if ($conn->connect_error) { 
-    die("Fallo crítico de conexión: " . $conn->connect_error); 
+    die("Fallo de conexión a la base de datos: " . $conn->connect_error); 
 }
 
 $conn->set_charset("utf8mb4");
 
-// 3. CREACIÓN AUTOMÁTICA DE TABLAS (La "Jugada Maestra")
+// 3. CREACIÓN AUTOMÁTICA DE TABLAS (ESTRUCTURA DEL CASINO)
 $conn->query("CREATE TABLE IF NOT EXISTS `usuarios` (
   `id` INT AUTO_INCREMENT PRIMARY KEY,
   `usuario` VARCHAR(50) UNIQUE,
@@ -40,8 +40,11 @@ $conn->query("CREATE TABLE IF NOT EXISTS `movimientos` (
   `fecha` TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 )");
 
-// 4. INSERTAR USUARIOS INICIALES (Solo si no existen)
-$conn->query("INSERT IGNORE INTO `usuarios` (id, usuario, password, rol, saldo) VALUES (1, 'Alejandro', '12345', 'GERENTE', 1000000)");
-$conn->query("INSERT IGNORE INTO `usuarios` (id, usuario, password, rol, saldo) VALUES (2, 'Oscar', '1234', 'JUGADOR', 0)");
+// 4. INSERTAR USUARIOS DE PRUEBA (Solo si la tabla está vacía)
+$check = $conn->query("SELECT id FROM usuarios LIMIT 1");
+if ($check->num_rows == 0) {
+    $conn->query("INSERT INTO `usuarios` (usuario, password, rol, saldo) VALUES ('Alejandro', '12345', 'GERENTE', 1000.00)");
+    $conn->query("INSERT INTO `usuarios` (usuario, password, rol, saldo) VALUES ('Oscar', '1234', 'JUGADOR', 0.00)");
+}
 
 ?>
