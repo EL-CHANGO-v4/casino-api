@@ -2,7 +2,4 @@
 builder = "nixpacks"
 
 [deploy]
-startCommand = "apache2-foreground"
-
-[nixpacks]
-pkgs = ["php82", "php82Extensions.mysqli"]
+startCommand = "php -S 0.0.0.0:$PORT"
